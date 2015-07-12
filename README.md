@@ -4,7 +4,7 @@ Aurora Inverter Communication
 Server application written in GoLang that let you get information from PowerOne Aurora series Inverters.
 PowerOne Aurora PVI series (and other compatible models) inverters utilise a proprietary communication protocol over the standard RS-485 bus (3-wire D+/D-/GND). Implementing a communication library for these devices with such a protocol isn't easy without a proper document (and google can't help you in this case)
 
-To reduce your work you can use this application or try to understand reading the code.
+To reduce your work you can use this application or try to understand the protocoll reading the code.
 
 You can retrieve data in XML, JSON and use them for building Android/IOS apps that monitoring a remote inverter (for example).
 
