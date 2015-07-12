@@ -48,8 +48,8 @@ func txtFunc(w http.ResponseWriter, r *http.Request) {
 		out += "\n" +
 			"Power out: " + m["pw_out"] + " W\n" +
 			"Power in: " + m["pw_in"] + " W\n" +
-			"Total Production: " + m["total"] + " kW/h\n" +
-			"Today Production:" + m["today"] + " kW/h"
+			"Total Production: " + m["total"] + " kWh\n" +
+			"Today Production:" + m["today"] + " kWh"
 	}
 
 	fmt.Fprint(w, out)
