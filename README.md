@@ -6,11 +6,9 @@ PowerOne Aurora PVI series (and other compatible models) inverters utilise a pro
 
 To reduce your work you can use this application or try to understand the protocoll reading the code.
 
-You can retrieve data in XML, JSON and use them for building Android/IOS apps that monitoring a remote inverter (for example).
+You can retrieve data in XML, JSON and use them for building Android/IOS apps that monitor a remote inverter (for example).
 
-It's based on Daniele De Santis PHP project (great job):
-
-InverterPowerMeterLITE monitor
+It's based on Daniele De Santis PHP InverterPowerMeterLITE monitor project
 
 http://www.desantix.it/index.php?page=download
 
