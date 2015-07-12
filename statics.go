@@ -15,6 +15,7 @@ type Inverter struct {
 	Serial     string
 	Global     string
 	Inverter   string
+	Alarm string
 	Alarm_code string
 	Pw_out     string
 	Pw_in      string
