@@ -28,12 +28,12 @@ Or you can configure the server with arguments:
 Example: 
 ./aurora-go -r=192.168.1.133 -s=80
 
-Inverter IP:PORT : 192.168.0.190:1470
+Inverter IP:PORT : 192.168.0.133:1470
 
-Simple Data URL : http://localhost:8100/
+Simple Data URL : http://localhost:80/
 
-Json Data URL : http://localhost:8100/json/
+Json Data URL : http://localhost:80/json/
 
-XML Data URL : http://localhost:8100/xml/
+XML Data URL : http://localhost:80/xml/
 
 
