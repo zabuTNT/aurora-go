@@ -41,4 +41,5 @@ Json Data URL : http://localhost:80/json/
 
 XML Data URL : http://localhost:80/xml/
 
+Until the server application runs you can retrieve the data at the specificated URLs. You can check open them in a browser.
 
