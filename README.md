@@ -3,7 +3,7 @@ Aurora Inverter Communication
 
 Simple server application written in GoLang that let you get information from PowerOne Aurora series Inverters.
 
-You can retrieve data in XML, JSON, or raw.
+You can retrieve data in XML, JSON and use them for building Android/IOS apps that monitoring a remote inverter (for example).
 
 It's based on Daniele De Santis PHP project:
 
