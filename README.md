@@ -10,7 +10,7 @@ You can retrieve data in XML, JSON and use them for building Android/IOS apps th
 
 It's based on Daniele De Santis PHP InverterPowerMeterLITE monitor project
 
-http://www.desantix.it/index.php?page=download
+http://www.desantix.it/index.php?page=show_articles&cmd=show_article&id=233
 
 ###Usage:
 
