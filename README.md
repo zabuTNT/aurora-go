@@ -33,7 +33,7 @@ Or you can configure the server with arguments:
 
 #####Output:
 
-Inverter IP:PORT : 192.168.0.133:1470
+Inverter IP:PORT : 192.168.1.133:1470
 
 Simple Data URL : http://localhost:80/
 
