@@ -26,8 +26,12 @@ Or you can configure the server with arguments:
   
   -s=8100: Server Listening Port
 
-Example: 
+####Example: 
+
+#####Run:
 ./aurora-go -r=192.168.1.133 -s=80
+
+#####Output:
 
 Inverter IP:PORT : 192.168.0.133:1470
 
