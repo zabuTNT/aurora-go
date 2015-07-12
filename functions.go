@@ -10,7 +10,6 @@ package aurora_go
 
 import (
 	_ "fmt"
-	_ "github.com/howeyc/crc16"
 	"math"
 	"net"
 	_ "strconv"
@@ -59,8 +58,6 @@ func CheckCRC(rxdata []byte) bool {
 
 func QueryInverter(cmdarray, results map[string][]byte) bool {
 
-	//fmt.Println("Connection with " + DEFAULT_IP + " ...")
-
 	seconds := 1
 	wait := time.Duration(seconds) * time.Second
 
@@ -75,10 +72,6 @@ func QueryInverter(cmdarray, results map[string][]byte) bool {
 
 	for key, value := range cmdarray {
 
-		//Do you want third party functions?
-		//cmd_crc := crc16.ChecksumCCITT(value)
-
-		//or you can use my function...
 		cmd_crc := CRC(value)
 
 		//CRC values
