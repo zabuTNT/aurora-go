@@ -6,7 +6,7 @@ Version:                0.1
 Date:                   12/07/2015
 Note:          		   Go 1.4.2
 **********************************************************************/
-package aurora_go
+package main
 
 import (
 	_ "fmt"
