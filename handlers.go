@@ -49,7 +49,7 @@ func txtFunc(w http.ResponseWriter, r *http.Request) {
 			"Power out: " + m["pw_out"] + " W\n" +
 			"Power in: " + m["pw_in"] + " W\n" +
 			"Total Production: " + m["total"] + " kWh\n" +
-			"Today Production:" + m["today"] + " kWh"
+			"Today Production: " + m["today"] + " kWh"
 	}
 
 	fmt.Fprint(w, out)
@@ -62,6 +62,7 @@ func xmlFunc(w http.ResponseWriter, r *http.Request) {
 
 	i := Inverter{
 		m["state"],
+		m["date"],
 		m["model"],
 		m["serial"],
 		m["global"],
