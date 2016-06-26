@@ -2,7 +2,7 @@
 Dev:                    Federico Bertolini
 Email:                  golife@paranoici.org
 Project:                Aurora-go
-Version:                0.1
+Version:                0.1.0
 Date:                   12/07/2015
 Note:          		   Go 1.4.2
 **********************************************************************/
