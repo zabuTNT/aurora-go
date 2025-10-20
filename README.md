@@ -1,45 +1,71 @@
 # aurora-go
-Aurora Inverter Communication application written in GoLang
+Aurora inverter communication server written in Go.
 
-Server application written in GoLang that let you get information from PowerOne Aurora series Inverters.
-PowerOne Aurora PVI series (and other compatible models) inverters utilise a proprietary communication protocol over the standard RS-485 bus (3-wire D+/D-/GND). Implementing a communication library for these devices with such a protocol isn't easy without a proper document (and google can't help you in this case)
+This server fetches live data from PowerOne/Aurora PVI series (and compatible) inverters using the Aurora protocol and exposes them over HTTP in plain text, JSON and XML.
 
-To reduce your work you can use this application or try to understand the protocoll reading the code.
+Based on Daniele De Santis' PHP InverterPowerMeterLITE project: http://www.desantix.it/index.php?page=show_articles&cmd=show_article&id=233
 
-You can retrieve data in XML, JSON and use them for building Android/IOS apps that monitor a remote inverter (for example).
+## Requirements
 
-It's based on Daniele De Santis PHP InverterPowerMeterLITE monitor project
+- Go 1.22+
+- Network reachability to the inverter TCP interface (default `1470`)
 
-http://www.desantix.it/index.php?page=show_articles&cmd=show_article&id=233
+## Build
 
-###Usage:
+Using Go modules:
 
-Run application with default values with
+```bash
+go build -o aurora-go
+```
 
+Or run directly:
+
+```bash
+go run . -r 192.168.0.190 -p 1470 -s 8100
+```
+
+## Usage
+
+Run with defaults:
+
+```bash
 ./aurora-go
+```
 
-Or you can configure the server with arguments:
+Flags:
 
-  -p=1470: Inverter Port
-  
-  -r="192.168.0.190": Inverter IP
-  
-  -s=8100: Server Listening Port
+- `-r` Inverter IP (default: `192.168.0.190`)
+- `-p` Inverter TCP port (default: `1470`)
+- `-s` HTTP server port (default: `8100`)
 
-####Example: 
+Example:
 
-#####Run:
-./aurora-go -r=192.168.1.133 -s=80
+```bash
+./aurora-go -r 192.168.1.133 -s 80
+```
 
-#####Output:
+On start you’ll see:
 
+```
 Inverter IP:PORT : 192.168.1.133:1470
-
 Simple Data URL : http://localhost:80/
+Json Data URL   : http://localhost:80/json/
+XML Data URL    : http://localhost:80/xml/
+```
 
-Json Data URL : http://localhost:80/json/
+## HTTP Endpoints
 
-XML Data URL : http://localhost:80/xml/
+- `/` Plain text summary
+- `/json/` JSON payload
+- `/xml/` XML payload
+- `/health/` Health probe: performs a lightweight status query and returns `OK` or `ERROR` (HTTP 503)
 
-Until the server application runs you can retrieve the data at the specificated URLs. You can simply check them in a browser.
+## Connection robustness
 
+The TCP client uses timeouts and deadlines for write/read, reads exactly 8 bytes per Aurora frame, and retries with exponential backoff. If the inverter goes to standby (e.g., at night), requests will fail fast with `ERROR` and will automatically recover as soon as the inverter is back, without restarting the process.
+
+## Troubleshooting
+
+- Cannot connect / timeouts: verify IP/port, firewall rules, and that the inverter’s TCP interface is reachable.
+- Frequent `ERROR` at night: expected when the inverter is in standby; it will recover automatically in the morning.
+- Health check: `curl -i http://localhost:8100/health/` to quickly verify connectivity.
