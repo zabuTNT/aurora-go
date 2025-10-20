@@ -2,9 +2,9 @@
 Dev:                    Federico Bertolini
 Email:                  golife@paranoici.org
 Project:                Aurora-go
-Version:                0.1
-Date:                   12/07/2015
-Note:          		   Go 1.4.2
+Version:                0.2
+Date:                   20/10/2025
+Note:                   Go 1.22; constant tables and commands unchanged
 **********************************************************************/
 package main
 

@@ -1,17 +1,20 @@
-/**********************************************************************
+/*
+**********************************************************************
 Dev:                    Federico Bertolini
 Email:                  golife@paranoici.org
 Project:                Aurora-go
-Version:                0.1.0
-Date:                   12/07/2015
-Note:          		   Go 1.4.2
-**********************************************************************/
+Version:                0.2
+Date:                   20/10/2025
+Note:                   Go 1.22; basic logging and /health endpoint
+**********************************************************************
+*/
 
 package main
 
 import (
 	"flag"
 	"fmt"
+    "log"
 	"net"
 	"net/http"
 	"os"
@@ -106,22 +109,32 @@ func main() {
 		os.Exit(0)
 	}
 
-	//define Handlers
-	http.HandleFunc("/", txtFunc)
-	http.HandleFunc("/json/", jsonFunc)
-	http.HandleFunc("/xml/", xmlFunc)
+    // define handlers
+    http.HandleFunc("/", txtFunc)
+    http.HandleFunc("/json/", jsonFunc)
+    http.HandleFunc("/xml/", xmlFunc)
+    // optional health endpoint
+    http.HandleFunc("/health/", func(w http.ResponseWriter, r *http.Request) {
+        results := make(map[string][]byte)
+        // lightweight query: only ST to minimize load
+        minimal := map[string][]byte{"ST": CMD_ST}
+        if QueryInverter(minimal, results) {
+            fmt.Fprint(w, "OK")
+            return
+        }
+        w.WriteHeader(http.StatusServiceUnavailable)
+        fmt.Fprint(w, "ERROR: "+string(results["ERROR"]))
+    })
 
-	fmt.Println("********** AURORA-GO **********")
-	fmt.Println("Inverter IP:PORT : " + REMOTE_IP + ":" + REMOTE_PORT)
-	fmt.Println("Simple Data URL : http://localhost:" + strconv.Itoa(*s) + "/")
-	fmt.Println("Json Data URL : http://localhost:" + strconv.Itoa(*s) + "/json/")
-	fmt.Println("XML Data URL : http://localhost:" + strconv.Itoa(*s) + "/xml/")
-	fmt.Println("*******************************")
+    log.Println("********** AURORA-GO **********")
+    log.Println("Inverter IP:PORT : " + REMOTE_IP + ":" + REMOTE_PORT)
+    log.Println("Simple Data URL : http://localhost:" + strconv.Itoa(*s) + "/")
+    log.Println("Json Data URL : http://localhost:" + strconv.Itoa(*s) + "/json/")
+    log.Println("XML Data URL : http://localhost:" + strconv.Itoa(*s) + "/xml/")
+    log.Println("*******************************")
 
-	if err := http.ListenAndServe(":"+strconv.Itoa(*s), nil); err != nil {
-
-		fmt.Println("CRITICAL ERROR: ", err.Error())
-
-	}
+    if err := http.ListenAndServe(":"+strconv.Itoa(*s), nil); err != nil {
+        log.Println("CRITICAL ERROR:", err.Error())
+    }
 
 }

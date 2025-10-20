@@ -2,18 +2,19 @@
 Dev:                    Federico Bertolini
 Email:                  golife@paranoici.org
 Project:                Aurora-go
-Version:                0.1
-Date:                   12/07/2015
-Note:          		   Go 1.4.2
+Version:                0.2
+Date:                   20/10/2025
+Note:                   Go 1.22; TCP with deadlines and retry/backoff
 **********************************************************************/
 package main
 
 import (
-	_ "fmt"
-	"math"
-	"net"
-	_ "strconv"
-	"time"
+    "context"
+    "fmt"
+    "io"
+    "math"
+    "net"
+    "time"
 )
 
 func DSPValue(hex string) float64 {
@@ -56,55 +57,73 @@ func CheckCRC(rxdata []byte) bool {
 
 }
 
+// QueryInverter queries the inverter by sending a batch of commands.
+// - Dials with timeout and TCP keepalive
+// - Sets write/read deadlines and reads exactly 8 bytes
+// - Applies exponential backoff retries to handle standby/power cycles
 func QueryInverter(cmdarray, results map[string][]byte) bool {
+    // exponential backoff to handle inverter standby/power cycle
+    const maxAttempts = 5
 
-	seconds := 1
-	wait := time.Duration(seconds) * time.Second
+    runBatch := func() error {
+        // context timeout for the whole dial operation
+        ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+        defer cancel()
 
-	fp, err := net.DialTimeout("tcp", REMOTE_IP+":"+REMOTE_PORT, wait)
+        dialer := net.Dialer{Timeout: 1 * time.Second, KeepAlive: 10 * time.Second}
+        conn, err := dialer.DialContext(ctx, "tcp", REMOTE_IP+":"+REMOTE_PORT)
+        if err != nil {
+            return fmt.Errorf("dial error: %w", err)
+        }
+        defer conn.Close()
 
-	if err != nil {
-		results["ERROR"] = []byte(err.Error())
-		return false
-	}
+        for key, value := range cmdarray {
+            cmd_crc := CRC(value)
+            // CRC values
+            a := byte(int(cmd_crc & 0xFF))
+            b := byte(int((cmd_crc >> 8) & 0xFF))
+            // append CRC
+            txcmd := append(value[:], a)
+            txcmd = append(txcmd[:], b)
 
-	defer fp.Close()
+            // write with deadline
+            _ = conn.SetWriteDeadline(time.Now().Add(1 * time.Second))
+            if _, err := conn.Write(txcmd); err != nil {
+                return fmt.Errorf("write error on %s: %w", key, err)
+            }
 
-	for key, value := range cmdarray {
+            reply := make([]byte, 8)
+            // read exactly 8 bytes with deadline
+            _ = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+            if _, err := io.ReadFull(conn, reply); err != nil {
+                return fmt.Errorf("read error on %s: %w", key, err)
+            }
 
-		cmd_crc := CRC(value)
+            // validate response
+            if len(reply) != 8 || !CheckCRC(reply) {
+                return fmt.Errorf("CRC error or invalid length on %s", key)
+            }
 
-		//CRC values
-		a := byte(int(cmd_crc & 0xFF))
-		b := byte(int((cmd_crc >> 8) & 0xFF))
+            // strip CRC and store
+            r := reply[:len(reply)-2]
+            results[key] = r
+        }
+        return nil
+    }
 
-		//Append CRC
-		txcmd := append(value[:], a)
-		txcmd = append(txcmd[:], b)
+    for attempt := 0; attempt < maxAttempts; attempt++ {
+        if err := runBatch(); err != nil {
+            results["ERROR"] = []byte(err.Error())
+            // minimal logging via fmt to avoid extra deps
+            fmt.Println("QueryInverter attempt", attempt+1, "failed:", err)
+            time.Sleep(time.Duration(250*(1<<uint(attempt))) * time.Millisecond)
+            continue
+        }
+        return true
+    }
 
-		//Send on socket
-		fp.Write(txcmd)
-
-		reply := make([]byte, 8)
-
-		//Read from socket
-		fp.Read(reply)
-
-		rxbuff := string(reply)
-		if len(rxbuff) == 8 {
-
-			//Check CRC
-			if CheckCRC(reply) {
-				reply = reply[:len(reply)-2]
-
-				results[key] = reply
-
-			} else {
-				results["ERROR"] = []byte("CRC Error")
-				return false
-			}
-		}
-	}
-
-	return true
+    if _, ok := results["ERROR"]; !ok {
+        results["ERROR"] = []byte("all attempts failed")
+    }
+    return false
 }
